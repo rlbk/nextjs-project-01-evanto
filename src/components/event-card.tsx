@@ -12,13 +12,13 @@ const EventCard = ({ event }: EventCardProps) => {
       className="flex-1 basis-80 h-[380px] max-w-[500px]"
       href={`/event/${event.slug}`}
     >
-      <section className="relative h-full w-full flex flex-col  bg-white[3%] rounded-xl overflow-hidden transition hover:scale-105 active:scale-[1.02]">
+      <section className="relative h-full w-full flex flex-col  bg-white[3%] rounded-xl overflow-hidden state-effects">
         <Image
           src={event.imageUrl}
           alt={event.name}
           width={500}
           height={280}
-          className="h-[60%] object-fit"
+          className="h-[60%] object-cover"
         />
         <div className="flex flex-1 flex-col items-center justify-center">
           <h2 className="text-2xl font-semibold">{event.name}</h2>
