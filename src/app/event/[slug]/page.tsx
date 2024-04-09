@@ -1,16 +1,25 @@
 import Image from "next/image";
 import H1 from "@/components/h1";
+import { Metadata } from "next";
+import { getEvent } from "@/lib/server-utils";
 
-type TEventPageProps = {
+type TProps = {
   params: { slug: string };
 };
 
-const EventPage = async ({ params }: TEventPageProps) => {
+export async function generateMetadata({ params }: TProps): Promise<Metadata> {
+  const { slug } = params;
+  const event = await getEvent(slug);
+
+  return {
+    title: event.name,
+  };
+}
+
+const EventPage = async ({ params }: TProps) => {
   const slug = params.slug;
-  const response = await fetch(
-    `https://bytegrad.com/course-assets/projects/evento/api/events/${slug}`
-  );
-  const event = await response.json();
+
+  const event = await getEvent(slug);
   return (
     <main>
       <section className="relative h-[361px] overflow-hidden flex justify-center items-center py-14 md:py-20">

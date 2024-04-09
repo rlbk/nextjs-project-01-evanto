@@ -1,29 +1,43 @@
 import H1 from "@/components/h1";
-import { TEventoEvent } from "@/lib/types";
 import EventsList from "@/components/events-list";
+import { Suspense } from "react";
+import Loading from "./loading";
+import { Metadata } from "next";
+import { capitalize } from "@/lib/utils";
+import { z } from "zod";
 
-type EventsPageProps = {
+type TProps = {
   params: {
     city: string;
   };
 };
 
-const EventsPage = async ({ params }: EventsPageProps) => {
+type TEventsPageProps = TProps & {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export function generateMetadata({ params }: TProps): Metadata {
   const { city } = params;
 
-  const response = await fetch(
-    `https://bytegrad.com/course-assets/projects/evento/api/events?city=${city}`
-  );
-  const events: TEventoEvent[] = await response.json();
+  return {
+    title: city === "all" ? "All Events" : `Events in ${capitalize(city)}`,
+  };
+}
 
+const pageNumberScherma = z.coerce.number().int().positive().optional();
+
+const EventsPage = ({ params, searchParams }: TEventsPageProps) => {
+  const { city } = params;
+  const parsedPage = pageNumberScherma.safeParse(searchParams.page) ?? 1;
+  if (!parsedPage.success) throw new Error("Invalid page Number");
   return (
     <main className="flex flex-col items-center py-24 px-[20px]  min-h-[120vh]">
       <H1 className="mb-10">
-        {city === "all"
-          ? "All Events"
-          : `Events in ${city.charAt(0).toUpperCase() + city.slice(1)}`}
+        {city === "all" ? "All Events" : `Events in ${capitalize(city)}`}
       </H1>
-      <EventsList events={events} />
+      <Suspense key={city + parsedPage.data} fallback={<Loading />}>
+        <EventsList city={city} page={parsedPage.data} />
+      </Suspense>
     </main>
   );
 };
